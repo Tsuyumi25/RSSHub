@@ -147,7 +147,7 @@ export function parseNovelContent(response: string): string {
             .replaceAll(/\[\[jumpuri:(.*?)>(.*?)\]\]/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
 
             // 頁面跳轉，但由於 [newpage] 使用 hr 分隔，沒有頁數，沒必要跳轉，所以只顯示文字
-            .replaceAll(/\[jump:(\d+)\]/g, '<p>跳轉至第$1頁</p>')
+            .replaceAll(/\[jump:(\d+)\]/g, '跳轉至第$1頁')
 
             // 章節標題
             .replaceAll(/\[chapter:(.*?)\]/g, '<h2>$1</h2>')
