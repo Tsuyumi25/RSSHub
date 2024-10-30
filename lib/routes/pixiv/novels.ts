@@ -52,7 +52,7 @@ async function handler(ctx): Promise<Data> {
         novels.map(async (novel) => {
             try {
                 const contentResponse = await getNovelContent(novel.id, token);
-                const content = parseNovelContent(contentResponse.data);
+                const content = await parseNovelContent(contentResponse.data, token);
 
                 return {
                     ...novel,
@@ -68,7 +68,7 @@ async function handler(ctx): Promise<Data> {
         title: novel.series?.title ? `${novel.series.title} - ${novel.title}` : novel.title,
         description: `
             <img src="${pixivUtils.getProxiedImageUrl(novel.image_urls.large)}" />
-            <p>${novel.caption ? novel.caption : ''}</p>
+            <p>${novel.caption || ''}</p>
             <p>
             字數：${novel.text_length}<br>
             閱覽數：${novel.total_view}<br>

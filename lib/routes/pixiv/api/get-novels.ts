@@ -3,6 +3,7 @@ import { maskHeader } from '../constants';
 import queryString from 'query-string';
 import { config } from '@/config';
 import { load } from 'cheerio';
+import getIllustDetail from './get-illust-detail';
 
 export interface PixivNovel {
     id: string;
@@ -91,7 +92,7 @@ export function getNovelContent(novel_id: string, token: string) {
     });
 }
 
-export function parseNovelContent(response: string): string {
+export async function parseNovelContent(response: string, token: string): Promise<string> {
     try {
         const $ = load(response);
 
@@ -118,6 +119,39 @@ export function parseNovelContent(response: string): string {
 
         let content = novelData.text;
 
+        // 先收集所有需要處理的圖片 ID
+        const imageMatches = content.match(/\[pixivimage:(\d+)(?:-(\d+))?\]/g) || [];
+        const imageIdToUrl = new Map<string, string>();
+
+        // 批量獲取圖片信息
+        await Promise.all(
+            imageMatches.map(async (match) => {
+                const [, illustId, pageNum] = match.match(/\[pixivimage:(\d+)(?:-(\d+))?\]/) || [];
+                if (!illustId) {return;}
+
+                try {
+                    const response = await getIllustDetail(illustId, token);
+                    const illust = response.data.illust;
+
+                    // 檢查是否是多頁插畫
+                    if (illust.meta_pages && illust.meta_pages.length > 0) {
+                        // 多頁插畫的情況
+                        const pageIndex = pageNum ? Number.parseInt(pageNum) : 0;
+                        if (illust.meta_pages[pageIndex]?.image_urls?.original) {
+                            const imageUrl = illust.meta_pages[pageIndex].image_urls.original.replace('https://i.pximg.net', config.pixiv.imgProxy || '');
+                            imageIdToUrl.set(`${illustId}${pageNum ? `-${pageNum}` : ''}`, imageUrl);
+                        }
+                    } else if (illust.meta_single_page?.original_image_url) {
+                        // 單頁插畫的情況
+                        const imageUrl = illust.meta_single_page.original_image_url.replace('https://i.pximg.net', config.pixiv.imgProxy || '');
+                        imageIdToUrl.set(illustId, imageUrl);
+                    }
+                } catch (error) {
+                    throw new Error(`Failed to fetch illust detail for ID ${illustId}: ${error instanceof Error ? error.message : String(error)}`);
+                }
+            })
+        );
+
         // https://www.pixiv.help/hc/ja/articles/235584168-小説作品の本文内に使える特殊タグとは
         content = content
             // 處理作者上傳的圖片
@@ -132,8 +166,9 @@ export function parseNovelContent(response: string): string {
 
             // 處理 pixiv 圖片引用
             .replaceAll(/\[pixivimage:(\d+)(?:-(\d+))?\]/g, (match, illustId, pageNum) => {
-                const imageUrl = `${config.pixiv.imgProxy || ''}/i/${illustId}${pageNum ? `_p${pageNum}` : ''}.jpg`;
-                return `<img src="${imageUrl}" alt="pixiv illustration ${illustId}${pageNum ? ` page ${pageNum}` : ''}">`;
+                const key = pageNum ? `${illustId}-${pageNum}` : illustId;
+                const imageUrl = imageIdToUrl.get(key);
+                return imageUrl ? `<img src="${imageUrl}" alt="pixiv illustration ${illustId}${pageNum ? ` page ${pageNum}` : ''}">` : match;
             })
 
             // 基本換行和段落
