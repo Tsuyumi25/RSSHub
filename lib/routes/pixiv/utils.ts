@@ -14,18 +14,7 @@ export default {
         }
         return images;
     },
-    getNovelImgs(novel) {
-        const images: string[] = [];
-        if (novel.image_urls?.large) {
-            const imageUrl = novel.image_urls.large.replace('https://i.pximg.net', config.pixiv.imgProxy);
-            images.push(`<p><img src="${imageUrl}" /></p>`);
-        }
-        return images;
-    },
     getProxiedImageUrl(originalUrl: string): string {
-        if (!originalUrl) {
-            return '';
-        }
         return originalUrl.replace('https://i.pximg.net', config.pixiv.imgProxy || '');
     },
 };

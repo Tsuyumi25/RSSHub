@@ -8,8 +8,6 @@ import { parseDate } from '@/utils/parse-date';
 import ConfigNotFoundError from '@/errors/types/config-not-found';
 import pixivUtils from './utils';
 
-import logger from '@/utils/logger';
-
 export const route: Route = {
     path: '/user/novels/:id',
     categories: ['social-media'],
@@ -30,7 +28,7 @@ export const route: Route = {
         },
     ],
     name: 'User Novels',
-    maintainers: ['DIYgod'],
+    maintainers: ['TonyRL', 'SnowAgar25'],
     handler,
 };
 
@@ -46,7 +44,6 @@ async function handler(ctx): Promise<Data> {
     }
 
     const response = (await getNovels(id, token)) as PixivResponse;
-    logger.debug(JSON.stringify(response));
     const novels = response.data.novels;
     const username = novels[0].user.name;
 
@@ -70,13 +67,14 @@ async function handler(ctx): Promise<Data> {
     const items = novelsWithContent.map((novel) => ({
         title: novel.series?.title ? `${novel.series.title} - ${novel.title}` : novel.title,
         description: `
-            ${pixivUtils.getNovelImgs(novel).join('')}
-            ${novel.caption ? novel.caption : ''}
-            <div>字數：${novel.text_length}</div>
-            <div>閱覽數：${novel.total_view}</div>
-            <div>收藏數：${novel.total_bookmarks}</div>
-            <div>評論數：${novel.total_comments}</div>
-            <hr>
+            <img src="${pixivUtils.getProxiedImageUrl(novel.image_urls.large)}" />
+            <p>${novel.caption ? novel.caption : ''}</p>
+            <p>
+            字數：${novel.text_length}<br>
+            閱覽數：${novel.total_view}<br>
+            收藏數：${novel.total_bookmarks}<br>
+            評論數：${novel.total_comments}<br>
+            </p><hr>
             ${novel.fullContent}`,
         author: novel.user.name,
         pubDate: parseDate(novel.create_date),
