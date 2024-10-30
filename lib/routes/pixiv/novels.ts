@@ -70,13 +70,13 @@ async function handler(ctx): Promise<Data> {
     const items = novelsWithContent.map((novel) => ({
         title: novel.series?.title ? `${novel.series.title} - ${novel.title}` : novel.title,
         description: `
-            <div class="novel-container">
-            ${novel.caption ? novel.caption : ''}
             ${pixivUtils.getNovelImgs(novel).join('')}
+            ${novel.caption ? novel.caption : ''}
             <div>字數：${novel.text_length}</div>
             <div>閱覽數：${novel.total_view}</div>
             <div>收藏數：${novel.total_bookmarks}</div>
             <div>評論數：${novel.total_comments}</div>
+            <hr>
             ${novel.fullContent}`,
         author: novel.user.name,
         pubDate: parseDate(novel.create_date),
