@@ -76,7 +76,8 @@ export default function getNovels(user_id: string, token: string) {
     });
 }
 
-// 新增：獲取小說全文函數 (使用新版 webview API)
+// https://github.com/mikf/gallery-dl/blob/main/gallery_dl/extractor/pixiv.py
+// https://github.com/mikf/gallery-dl/commit/db507e30c7431d4ed7e23c153a044ce1751c2847
 export function getNovelContent(novel_id: string, token: string) {
     return got('https://app-api.pixiv.net/webview/v2/novel', {
         headers: {
@@ -90,7 +91,6 @@ export function getNovelContent(novel_id: string, token: string) {
     });
 }
 
-// https://www.pixiv.help/hc/ja/articles/235584168-%E5%B0%8F%E8%AA%AC%E4%BD%9C%E5%93%81%E3%81%AE%E6%9C%AC%E6%96%87%E5%86%85%E3%81%AB%E4%BD%BF%E3%81%88%E3%82%8B%E7%89%B9%E6%AE%8A%E3%82%BF%E3%82%B0%E3%81%A8%E3%81%AF
 export function parseNovelContent(response: string): string {
     try {
         const $ = load(response);
@@ -118,8 +118,9 @@ export function parseNovelContent(response: string): string {
 
         let content = novelData.text;
 
+        // https://www.pixiv.help/hc/ja/articles/235584168-小説作品の本文内に使える特殊タグとは
         content = content
-            // 1. 處理上傳的圖片
+            // 處理作者上傳的圖片
             .replaceAll(/\[uploadedimage:(\d+)\]/g, (match, imageId) => {
                 const originalUrl = novelData?.images?.[imageId]?.urls?.original;
                 if (originalUrl) {
@@ -129,7 +130,7 @@ export function parseNovelContent(response: string): string {
                 return match;
             })
 
-            // 2. 處理 pixiv 圖片引用
+            // 處理 pixiv 圖片引用
             .replaceAll(/\[pixivimage:(\d+)(?:-(\d+))?\]/g, (match, illustId, pageNum) => {
                 const imageUrl = `${config.pixiv.imgProxy || ''}/i/${illustId}${pageNum ? `_p${pageNum}` : ''}.jpg`;
                 return `<img src="${imageUrl}" alt="pixiv illustration ${illustId}${pageNum ? ` page ${pageNum}` : ''}">`;
@@ -144,6 +145,9 @@ export function parseNovelContent(response: string): string {
 
             // 連結處理
             .replaceAll(/\[\[jumpuri:(.*?)>(.*?)\]\]/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+
+            // 頁面跳轉，但由於 [newpage] 使用 hr 分隔，沒有頁數，沒必要跳轉，所以只顯示文字
+            .replaceAll(/\[jump:(\d+)\]/g, '<p>跳轉至第$1頁</p>')
 
             // 章節標題
             .replaceAll(/\[chapter:(.*?)\]/g, '<h2>$1</h2>')
