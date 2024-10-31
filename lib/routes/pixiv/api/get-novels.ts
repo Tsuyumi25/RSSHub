@@ -5,6 +5,8 @@ import { config } from '@/config';
 import { load } from 'cheerio';
 import getIllustDetail from './get-illust-detail';
 
+import pixivUtils from '../utils';
+
 export interface PixivNovel {
     id: string;
     title: string;
@@ -48,8 +50,28 @@ export interface PixivResponse {
     };
 }
 
-interface NovelData {
+export interface NovelData {
+    id: string;
+    seriesId: string;
+    title: string;
+    seriesTitle?: string;
+    seriesIsWatched: boolean;
+
+    userId: string;
+    coverUrl: string;
+
+    tags: string[];
+    caption: string;
     text: string;
+
+    cdate: string;
+
+    rating: {
+        like: number;
+        bookmark: number;
+        view: number;
+    };
+
     images?: {
         [key: string]: {
             urls: {
@@ -57,6 +79,34 @@ interface NovelData {
             };
         };
     };
+
+    marker: string | null;
+    illusts: any[];
+
+    seriesNavigation: {
+        nextNovel?: {
+            id: number;
+            viewable: boolean;
+            contentOrder: string;
+            title: string;
+            coverUrl: string;
+            viewableMessage: string | null;
+        };
+        prevNovel?: {
+            id: number;
+            viewable: boolean;
+            contentOrder: string;
+            title: string;
+            coverUrl: string;
+            viewableMessage: string | null;
+        };
+    };
+
+    glossaryItems: any[];
+    replaceableItemIds: any[];
+
+    aiType: number;
+    isOriginal: boolean;
 }
 /**
  * 获取用户小说作品
@@ -92,7 +142,7 @@ export function getNovelContent(novel_id: string, token: string) {
     });
 }
 
-export async function parseNovelContent(response: string, token: string): Promise<string> {
+export async function parseNovelContent(response: string, token: string) {
     try {
         const $ = load(response);
 
@@ -119,32 +169,22 @@ export async function parseNovelContent(response: string, token: string): Promis
 
         let content = novelData.text;
 
-        // 先收集所有需要處理的圖片 ID
-        const imageMatches = content.match(/\[pixivimage:(\d+)(?:-(\d+))?\]/g) || [];
+        // 先收集所有需要處理的圖片 ID 和頁碼
+        const imageMatches = [...content.matchAll(/\[pixivimage:(\d+)(?:-(\d+))?\]/g)];
         const imageIdToUrl = new Map<string, string>();
 
         // 批量獲取圖片信息
         await Promise.all(
-            imageMatches.map(async (match) => {
-                const [, illustId, pageNum] = match.match(/\[pixivimage:(\d+)(?:-(\d+))?\]/) || [];
+            imageMatches.map(async ([, illustId, pageNum]) => {
                 if (!illustId) {return;}
 
                 try {
-                    const response = await getIllustDetail(illustId, token);
-                    const illust = response.data.illust;
+                    const illust = (await getIllustDetail(illustId, token)).data.illust;
+                    const images = pixivUtils.getImgs(illust).map((img) => img.match(/src="([^"]+)"/)?.[1] || '');
 
-                    // 檢查是否是多頁插畫
-                    if (illust.meta_pages && illust.meta_pages.length > 0) {
-                        // 多頁插畫的情況
-                        const pageIndex = pageNum ? Number.parseInt(pageNum) : 0;
-                        if (illust.meta_pages[pageIndex]?.image_urls?.original) {
-                            const imageUrl = illust.meta_pages[pageIndex].image_urls.original.replace('https://i.pximg.net', config.pixiv.imgProxy || '');
-                            imageIdToUrl.set(`${illustId}${pageNum ? `-${pageNum}` : ''}`, imageUrl);
-                        }
-                    } else if (illust.meta_single_page?.original_image_url) {
-                        // 單頁插畫的情況
-                        const imageUrl = illust.meta_single_page.original_image_url.replace('https://i.pximg.net', config.pixiv.imgProxy || '');
-                        imageIdToUrl.set(illustId, imageUrl);
+                    const imageUrl = images[Number(pageNum) || 0];
+                    if (imageUrl) {
+                        imageIdToUrl.set(pageNum ? `${illustId}-${pageNum}` : illustId, imageUrl);
                     }
                 } catch (error) {
                     throw new Error(`Failed to fetch illust detail for ID ${illustId}: ${error instanceof Error ? error.message : String(error)}`);
@@ -182,12 +222,12 @@ export async function parseNovelContent(response: string, token: string): Promis
             .replaceAll(/\[\[jumpuri:(.*?)>(.*?)\]\]/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
 
             // 頁面跳轉，但由於 [newpage] 使用 hr 分隔，沒有頁數，沒必要跳轉，所以只顯示文字
-            .replaceAll(/\[jump:(\d+)\]/g, '跳轉至第$1頁')
+            .replaceAll(/\[jump:(\d+)\]/g, 'Jump to page $1')
 
             // 章節標題
             .replaceAll(/\[chapter:(.*?)\]/g, '<h2>$1</h2>')
 
-            // 其他格式
+            // 換頁改成分隔線
             .replaceAll('[newpage]', '<hr>');
 
         // 使用 cheerio 進行最後的 HTML 清理
@@ -209,7 +249,10 @@ export async function parseNovelContent(response: string, token: string): Promis
             }
         });
 
-        return $content.html() || '';
+        return {
+            novelData,
+            content: $content.html() || '',
+        };
     } catch (error) {
         throw new Error(`Error parsing novel content: ${error instanceof Error ? error.message : String(error)}`);
     }

@@ -2,7 +2,7 @@
 import { Data, Route, ViewType } from '@/types';
 import cache from '@/utils/cache';
 import { getToken } from './token';
-import getNovels, { getNovelContent, parseNovelContent, PixivResponse } from './api/get-novels';
+import getNovels, { getNovelContent, NovelData, parseNovelContent, PixivResponse } from './api/get-novels';
 import { config } from '@/config';
 import { parseDate } from '@/utils/parse-date';
 import ConfigNotFoundError from '@/errors/types/config-not-found';
@@ -52,10 +52,14 @@ async function handler(ctx): Promise<Data> {
         novels.map(async (novel) => {
             try {
                 const contentResponse = await getNovelContent(novel.id, token);
-                const content = await parseNovelContent(contentResponse.data, token);
+                const { content, novelData } = (await parseNovelContent(contentResponse.data, token)) as {
+                    novelData: NovelData;
+                    content: string;
+                };
 
                 return {
                     ...novel,
+                    novelData,
                     fullContent: content,
                 };
             } catch (error) {
@@ -66,9 +70,10 @@ async function handler(ctx): Promise<Data> {
 
     const items = novelsWithContent.map((novel) => ({
         title: novel.series?.title ? `${novel.series.title} - ${novel.title}` : novel.title,
+        // 使用 novel.caption 會有`pixiv://`這種協議，所以不用
         description: `
             <img src="${pixivUtils.getProxiedImageUrl(novel.image_urls.large)}" />
-            <p>${novel.caption || ''}</p>
+            <p>${novel.novelData.caption || ''}</p>
             <p>
             字數：${novel.text_length}<br>
             閱覽數：${novel.total_view}<br>
