@@ -1,11 +1,17 @@
-import { Route } from '@/types';
-import got from '@/utils/got';
+// novels.ts
+import { Data, Route, ViewType } from '@/types';
+import cache from '@/utils/cache';
+import { getToken } from './token';
+import getNovels, { getNovelContent, NovelData, parseNovelContent, PixivResponse } from './api/get-novels';
+import { config } from '@/config';
 import { parseDate } from '@/utils/parse-date';
-const baseUrl = 'https://www.pixiv.net';
+import ConfigNotFoundError from '@/errors/types/config-not-found';
+import pixivUtils from './utils';
 
 export const route: Route = {
     path: '/user/novels/:id',
     categories: ['social-media'],
+    view: ViewType.Articles,
     example: '/pixiv/user/novels/27104704',
     parameters: { id: "User id, available in user's homepage URL" },
     features: {
@@ -22,50 +28,72 @@ export const route: Route = {
         },
     ],
     name: 'User Novels',
-    maintainers: ['TonyRL'],
+    maintainers: ['TonyRL', 'SnowAgar25'],
     handler,
 };
 
-async function handler(ctx) {
-    const id = ctx.req.param('id');
-    const { limit = 100 } = ctx.req.query();
-    const url = `${baseUrl}/users/${id}/novels`;
-    const { data: allData } = await got(`${baseUrl}/ajax/user/${id}/profile/all`, {
-        headers: {
-            referer: url,
-        },
-    });
-
-    const novels = Object.keys(allData.body.novels)
-        .sort((a, b) => b - a)
-        .slice(0, Number.parseInt(limit, 10));
-    const searchParams = new URLSearchParams();
-    for (const novel of novels) {
-        searchParams.append('ids[]', novel);
+async function handler(ctx): Promise<Data> {
+    if (!config.pixiv || !config.pixiv.refreshToken) {
+        throw new ConfigNotFoundError('pixiv RSS is disabled due to the lack of <a href="https://docs.rsshub.app/deploy/config#route-specific-configurations">relevant config</a>');
     }
 
-    const { data } = await got(`${baseUrl}/ajax/user/${id}/profile/novels`, {
-        headers: {
-            referer: url,
-        },
-        searchParams,
-    });
+    const id = ctx.req.param('id');
+    const token = await getToken(cache.tryGet);
+    if (!token) {
+        throw new ConfigNotFoundError('pixiv not login');
+    }
 
-    const items = Object.values(data.body.works).map((item) => ({
-        title: item.seriesTitle || item.title,
-        description: item.description || item.title,
-        link: `${baseUrl}/novel/series/${item.id}`,
-        author: item.userName,
-        pubDate: parseDate(item.createDate),
-        updated: parseDate(item.updateDate),
-        category: item.tags,
+    const response = (await getNovels(id, token)) as PixivResponse;
+    const novels = response.data.novels;
+    const username = novels[0].user.name;
+
+    // 使用 Promise.all 並行獲取所有小說的內容
+    // Use Promise.all to fetch all novel contents in parallel
+    const novelsWithContent = await Promise.all(
+        novels.map(async (novel) => {
+            try {
+                const contentResponse = await getNovelContent(novel.id, token);
+                const { content, novelData } = (await parseNovelContent(contentResponse.data, token)) as {
+                    novelData: NovelData;
+                    content: string;
+                };
+
+                return {
+                    ...novel,
+                    novelData,
+                    fullContent: content,
+                };
+            } catch (error) {
+                throw new Error(`Error fetching novel ${novel.id}: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        })
+    );
+
+    const items = novelsWithContent.map((novel) => ({
+        title: novel.series?.title ? `${novel.series.title} - ${novel.title}` : novel.title,
+        // 使用 novel.caption 會有`pixiv://`這種協議，所以不用
+        // Don't use novel.caption as it contains protocols like `pixiv://`
+        description: `
+            <img src="${pixivUtils.getProxiedImageUrl(novel.image_urls.large)}" />
+            <p>${novel.novelData.caption || ''}</p>
+            <p>
+            字數：${novel.text_length}<br>
+            閱覽數：${novel.total_view}<br>
+            收藏數：${novel.total_bookmarks}<br>
+            評論數：${novel.total_comments}<br>
+            </p><hr>
+            ${novel.fullContent}`,
+        author: novel.user.name,
+        pubDate: parseDate(novel.create_date),
+        link: `https://www.pixiv.net/novel/show.php?id=${novel.id}`,
+        category: novel.tags.map((t) => t.name),
     }));
 
     return {
-        title: data.body.extraData.meta.title,
-        description: data.body.extraData.meta.ogp.description,
-        image: Object.values(data.body.works)[0].profileImageUrl,
-        link: url,
+        title: `${username} 的 pixiv 小说`,
+        description: `${username} 的 pixiv 最新小说`,
+        image: pixivUtils.getProxiedImageUrl(novels[0].user.profile_image_urls.medium),
+        link: `https://www.pixiv.net/users/${id}/novels`,
         item: items,
     };
 }
