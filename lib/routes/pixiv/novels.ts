@@ -15,7 +15,12 @@ export const route: Route = {
     example: '/pixiv/user/novels/27104704',
     parameters: { id: "User id, available in user's homepage URL" },
     features: {
-        requireConfig: false,
+        requireConfig: [
+            {
+                name: 'PIXIV_REFRESHTOKEN',
+                description: '',
+            },
+        ],
         requirePuppeteer: false,
         antiCrawler: false,
         supportBT: false,
