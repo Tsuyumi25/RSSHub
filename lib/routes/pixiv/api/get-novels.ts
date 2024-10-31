@@ -146,7 +146,8 @@ export async function parseNovelContent(response: string, token: string) {
     try {
         const $ = load(response);
 
-        // 從 script 標籤中提取 pixiv 對象
+        // 從 script 標籤中提取 pixiv 物件
+        // Extract pixiv object from script tag
         let novelData: NovelData | undefined;
 
         $('script').each((_, script) => {
@@ -170,13 +171,17 @@ export async function parseNovelContent(response: string, token: string) {
         let content = novelData.text;
 
         // 先收集所有需要處理的圖片 ID 和頁碼
+        // First collect all image IDs and page numbers that need processing
         const imageMatches = [...content.matchAll(/\[pixivimage:(\d+)(?:-(\d+))?\]/g)];
         const imageIdToUrl = new Map<string, string>();
 
-        // 批量獲取圖片信息
+        // 批量獲取圖片資訊
+        // Batch fetch image information
         await Promise.all(
             imageMatches.map(async ([, illustId, pageNum]) => {
-                if (!illustId) {return;}
+                if (!illustId) {
+                    return;
+                }
 
                 try {
                     const illust = (await getIllustDetail(illustId, token)).data.illust;
@@ -195,6 +200,7 @@ export async function parseNovelContent(response: string, token: string) {
         // https://www.pixiv.help/hc/ja/articles/235584168-小説作品の本文内に使える特殊タグとは
         content = content
             // 處理作者上傳的圖片
+            // Process author uploaded images
             .replaceAll(/\[uploadedimage:(\d+)\]/g, (match, imageId) => {
                 const originalUrl = novelData?.images?.[imageId]?.urls?.original;
                 if (originalUrl) {
@@ -205,6 +211,7 @@ export async function parseNovelContent(response: string, token: string) {
             })
 
             // 處理 pixiv 圖片引用
+            // Handle pixiv image references
             .replaceAll(/\[pixivimage:(\d+)(?:-(\d+))?\]/g, (match, illustId, pageNum) => {
                 const key = pageNum ? `${illustId}-${pageNum}` : illustId;
                 const imageUrl = imageIdToUrl.get(key);
@@ -212,34 +219,43 @@ export async function parseNovelContent(response: string, token: string) {
             })
 
             // 基本換行和段落
+            // Basic line breaks and paragraphs
             .replaceAll('\n', '<br>')
             .replaceAll(/(<br>){2,}/g, '</p><p>')
 
             // ruby 標籤處理
+            // Process ruby tags
             .replaceAll(/\[\[rb:(.*?)>(.*?)\]\]/g, '<ruby>$1<rt>$2</rt></ruby>')
 
             // 連結處理
+            // Handle links
             .replaceAll(/\[\[jumpuri:(.*?)>(.*?)\]\]/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
 
             // 頁面跳轉，但由於 [newpage] 使用 hr 分隔，沒有頁數，沒必要跳轉，所以只顯示文字
+            // Page jumps, but since [newpage] uses hr separators, without the page numbers, jumping isn't needed, so just display text
             .replaceAll(/\[jump:(\d+)\]/g, 'Jump to page $1')
 
             // 章節標題
+            // Chapter titles
             .replaceAll(/\[chapter:(.*?)\]/g, '<h2>$1</h2>')
 
             // 換頁改成分隔線
+            // Convert [newpage] tags to <hr> elements
             .replaceAll('[newpage]', '<hr>');
 
         // 使用 cheerio 進行最後的 HTML 清理
+        // Use cheerio for final HTML cleanup
         const $content = load(`<article><p>${content}</p></article>`);
 
         // 優化嵌套段落處理
+        // Optimize nested paragraph handling
         $content('p p').each((_, elem) => {
             const $elem = $content(elem);
             $elem.replaceWith($elem.html() || '');
         });
 
         // 確保標題標籤位置正確
+        // Ensure correct heading tag placement
         $content('p h2').each((_, elem) => {
             const $elem = $content(elem);
             const $parent = $elem.parent('p');

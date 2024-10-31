@@ -48,6 +48,7 @@ async function handler(ctx): Promise<Data> {
     const username = novels[0].user.name;
 
     // 使用 Promise.all 並行獲取所有小說的內容
+    // Use Promise.all to fetch all novel contents in parallel
     const novelsWithContent = await Promise.all(
         novels.map(async (novel) => {
             try {
@@ -71,6 +72,7 @@ async function handler(ctx): Promise<Data> {
     const items = novelsWithContent.map((novel) => ({
         title: novel.series?.title ? `${novel.series.title} - ${novel.title}` : novel.title,
         // 使用 novel.caption 會有`pixiv://`這種協議，所以不用
+        // Don't use novel.caption as it contains protocols like `pixiv://`
         description: `
             <img src="${pixivUtils.getProxiedImageUrl(novel.image_urls.large)}" />
             <p>${novel.novelData.caption || ''}</p>
