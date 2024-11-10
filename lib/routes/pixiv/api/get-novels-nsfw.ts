@@ -129,7 +129,7 @@ function getNovels(user_id: string, token: string): Promise<nsfwNovelsResponse> 
 
 async function getNovelFullContent(novel_id: string, token: string): Promise<nsfwNovelDetail> {
     return (await cache.tryGet(`https://app-api.pixiv.net/webview/v2/novel:${novel_id}`, async () => {
-        // https://github.com/mikf/gallery-dl/blob/main/gallery_dl/extractor/pixiv.py
+        // https://github.com/mikf/gallery-dl/blob/master/gallery_dl/extractor/pixiv.py#L1156
         // https://github.com/mikf/gallery-dl/commit/db507e30c7431d4ed7e23c153a044ce1751c2847
         const response = await got('https://app-api.pixiv.net/webview/v2/novel', {
             headers: {

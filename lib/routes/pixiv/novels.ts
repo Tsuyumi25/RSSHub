@@ -3,10 +3,11 @@ import { fallback, queryToBoolean } from '@/utils/readable-social';
 import { getR18Novels } from './api/get-novels-nsfw';
 import { getNonR18Novels } from './api/get-novels-sfw';
 import { config } from '@/config';
+import ConfigNotFoundError from '@/errors/types/config-not-found';
 
 export const route: Route = {
     path: '/user/novels/:id/:full_content?',
-    categories: ['social-media'],
+    categories: ['social-media', 'reading'],
     view: ViewType.Articles,
     example: '/pixiv/user/novels/27104704',
     parameters: {
@@ -40,12 +41,12 @@ refresh_token after Pixiv login, required for accessing R18 novels
     radar: [
         {
             title: 'User Novels (簡介 Basic info)',
-            source: ['www.pixiv.net/users/:id/novels'],
+            source: ['www.pixiv.net/users/:id', 'www.pixiv.net/users/:id/novels'],
             target: '/user/novels/:id',
         },
         {
             title: 'User Novels (全文 Full text)',
-            source: ['www.pixiv.net/users/:id/novels'],
+            source: ['www.pixiv.net/users/:id', 'www.pixiv.net/users/:id/novels'],
             target: '/user/novels/:id/true',
         },
     ],
@@ -80,12 +81,12 @@ async function handler(ctx): Promise<Data> {
         return await getR18Novels(id, fullContent, limit);
     }
 
-    // Attempt non-R18 API when Pixiv auth is missing
     const nonR18Result = await getNonR18Novels(id, fullContent, limit).catch(() => null);
     if (nonR18Result) {
         return nonR18Result;
     }
 
-    // Fallback to R18 API as last resort
-    return await getR18Novels(id, fullContent, limit);
+    throw new ConfigNotFoundError(
+        '該用戶爲 R18 創作者，需要 PIXIV_REFRESHTOKEN。This user is an R18 creator, PIXIV_REFRESHTOKEN is required - pixiv RSS is disabled due to the lack of <a href="https://docs.rsshub.app/deploy/config#route-specific-configurations">relevant config</a>'
+    );
 }

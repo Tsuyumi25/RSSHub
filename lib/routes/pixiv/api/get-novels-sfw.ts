@@ -135,7 +135,7 @@ export async function getNonR18Novels(id: string, fullContent: boolean, limit: n
         .slice(0, Number.parseInt(String(limit), 10));
 
     if (novels.length === 0) {
-        throw new Error('No novels found, fallback to R18 API');
+        throw new Error('No novels found');
         // Throw error early to avoid unnecessary API requests
         // Since hasPixivAuth() check failed earlier and R18 API requires authentication, this will result in ConfigNotFoundError
     }
