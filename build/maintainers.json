@@ -682,7 +682,8 @@
   ],
   "/bilibili/user/article/:uid": [
     "lengthmin",
-    "Qixingchen"
+    "Qixingchen",
+    "hyoban"
   ],
   "/bilibili/audio/:id": [
     "LogicJake"
@@ -1988,6 +1989,12 @@
   ],
   "/dut/*/*": [],
   "/dut/:0?": [],
+  "/dw/news/:lang?/:id?": [
+    "quiniapiezoelectricity"
+  ],
+  "/dw/rss/:channel?": [
+    "quiniapiezoelectricity"
+  ],
   "/dx2025/:type?/:category?": [
     "nczitzk"
   ],
@@ -5493,6 +5500,12 @@
   "/qqorw/:category?": [
     "nczitzk"
   ],
+  "/qstheory/:category?": [
+    "nczitzk"
+  ],
+  "/qstheory/magazine/:magazine": [
+    "TonyRL"
+  ],
   "/questmobile/report/:industry?/:label?": [
     "nczitzk"
   ],
@@ -6363,21 +6376,8 @@
   "/sycl/:feed?": [
     "mocusez"
   ],
-  "/syosetu/dev": [
-    "SnowAgar25"
-  ],
-  "/syosetu/:ncode/:routeParams?": [
-    "eternasuno",
-    "SnowAgar25"
-  ],
-  "/syosetu/rankingr18/:sub/:type/:routeParams?": [
-    "SnowAgar25"
-  ],
-  "/syosetu/ranking/:listType/:type/:routeParams?": [
-    "SnowAgar25"
-  ],
-  "/syosetu/search/:sub/:query": [
-    "SnowAgar25"
+  "/syosetu/chapter/:id": [
+    "huangliangshusheng"
   ],
   "/sysu/cse": [],
   "/sysu/ygafz/:type?": [
@@ -7078,6 +7078,9 @@
   "/wallpaperhub/": [
     "nczitzk"
   ],
+  "/wallstreetcn/calendar/:section?": [
+    "TonyRL"
+  ],
   "/wallstreetcn/hot/:period?": [
     "nczitzk"
   ],
@@ -7085,9 +7088,6 @@
     "nczitzk"
   ],
   "/wallstreetcn/news/:category?": [
-    "nczitzk"
-  ],
-  "/wallstreetcn/:category?": [
     "nczitzk"
   ],
   "/wanqu/news": [
