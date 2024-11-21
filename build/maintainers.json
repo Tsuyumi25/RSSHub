@@ -215,7 +215,9 @@
   "/6v123/latestTVSeries": [
     "tc9011"
   ],
-  "/78dm*": [],
+  "/78dm/:category{.+}?": [
+    "nczitzk"
+  ],
   "/7mmtv/:language?/:category?/:type?": [
     "nczitzk"
   ],
@@ -355,6 +357,12 @@
   "/aip/:pub/:jrn": [
     "Derekmini",
     "auto-bot-ty"
+  ],
+  "/air-level/air/:area": [
+    "lifetraveler"
+  ],
+  "/air-level/rank/:status?": [
+    "lifetraveler"
   ],
   "/airchina/announcement": [
     "LandonLi"
@@ -3443,6 +3451,9 @@
     "zphw",
     "nczitzk"
   ],
+  "/idolmaster/news/:routeParams?": [
+    "keocheung"
+  ],
   "/idolypride/news": [
     "Mingxia1"
   ],
@@ -4055,7 +4066,7 @@
     "bigfei"
   ],
   "/linkresearcher/:params": [
-    "yech1990"
+    "y9c"
   ],
   "/linovelib/novel/:id": [
     "misakicoca"
@@ -4181,6 +4192,9 @@
   ],
   "/lxixsxa/info": [
     "Kiotlin"
+  ],
+  "/m-78/news/:category?": [
+    "KarasuShin"
   ],
   "/m4/:id?/:category{.+}?": [],
   "/maccms/:domain/:type?/:size?": [
@@ -5139,6 +5153,9 @@
     "AntiKnot"
   ],
   "/patagonia/new-arrivals/:category": [],
+  "/patreon/:creator": [
+    "TonyRL"
+  ],
   "/paulgraham/articles": [
     "Maecenas",
     "nczitzk"
@@ -5755,6 +5772,9 @@
   ],
   "/sctv/programme/:id?/:limit?/:isFull?": [
     "nczitzk"
+  ],
+  "/scu/jwc": [
+    "Kyle-You"
   ],
   "/scu/scupi": [
     "sitdownkevin"
@@ -7295,6 +7315,9 @@
   ],
   "/wtu/job/:type": [
     "ticks-tan"
+  ],
+  "/wufazhuce/one": [
+    "sicheng1806"
   ],
   "/wyzxwk/article/:id?": [
     "nczitzk"
