@@ -1431,9 +1431,9 @@
     "nczitzk"
   ],
   "/cnjxol/:category?/:id?": [],
-  "/cnki/author/:code": [
-    "harveyqiu",
-    "Derekmini"
+  "/cnki/author/:name/:company": [
+    "Derekmini",
+    "harveyqiu"
   ],
   "/cnki/journals/debut/:name": [
     "Fatpandac"
@@ -1819,6 +1819,9 @@
   ],
   "/dockerhub/build/:owner/:image/:tag?": [
     "HenryQW"
+  ],
+  "/dockerhub/repositories/:owner": [
+    "CaoMeiYouRen"
   ],
   "/dockerhub/tag/:owner/:image/:limits?": [],
   "/docschina/weekly/:category?": [
@@ -4072,7 +4075,8 @@
     "bigfei"
   ],
   "/linkresearcher/:params": [
-    "y9c"
+    "y9c",
+    "KarasuShin"
   ],
   "/linovelib/novel/:id": [
     "misakicoca"
