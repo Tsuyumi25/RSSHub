@@ -497,7 +497,7 @@
     "HenryQW",
     "kt286"
   ],
-  "/apple/podcast/:id/:region?": [
+  "/apple/podcast/:id": [
     "Acring"
   ],
   "/appleinsider/:category?": [
@@ -2305,9 +2305,6 @@
   ],
   "/followin/topic/:topicId/:lang?": [
     "TonyRL"
-  ],
-  "/foodtalks/": [
-    "Geraldxm"
   ],
   "/foresightnews/article": [
     "nczitzk"
@@ -4613,8 +4610,7 @@
     "lessmoe"
   ],
   "/newrank/wechat/:wxid": [
-    "lessmoe",
-    "pseudoyu"
+    "lessmoe"
   ],
   "/news/xhsxw": [
     "nczitzk"
@@ -5178,9 +5174,6 @@
   "/parliament.uk/lordslibrary/type/:topic?": [
     "AntiKnot"
   ],
-  "/parliament.uk/petitions/:state?": [
-    "nczitzk"
-  ],
   "/patagonia/new-arrivals/:category": [],
   "/patreon/:creator": [
     "TonyRL"
@@ -5257,9 +5250,6 @@
   ],
   "/pingwest/user/:uid/:type?/:option?": [
     "sanmmm"
-  ],
-  "/pinterest/user/:username/:type?": [
-    "TonyRL"
   ],
   "/pixabay/search/:q/:order?": [
     "TonyRL"

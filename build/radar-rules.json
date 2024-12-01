@@ -1489,7 +1489,7 @@
   },
   "aeon.co": {
     "_name": "AEON",
-    ".": [
+    "aeon": [
       {
         "title": "Categories",
         "docs": "https://docs.rsshub.app/routes/new-media",
@@ -3271,9 +3271,9 @@
         "title": "播客",
         "docs": "https://docs.rsshub.app/routes/multimedia",
         "source": [
-          "/:region/podcast/:id"
+          "/cn/podcast/:id"
         ],
-        "target": "/apple/podcast/:id/:region?"
+        "target": "/apple/podcast/:id"
       }
     ]
   },
@@ -9711,19 +9711,6 @@
           "/topic/:topicId"
         ],
         "target": "/followin/topic/:topicId/:lang?"
-      }
-    ]
-  },
-  "foodtalks.cn": {
-    "_name": "FoodTalks全球食品资讯网",
-    "www": [
-      {
-        "title": "FoodTalks global food information network",
-        "docs": "https://docs.rsshub.app/routes/new-media",
-        "source": [
-          "/"
-        ],
-        "target": "/foodtalks/"
       }
     ]
   },
@@ -22852,99 +22839,6 @@
       }
     ]
   },
-  "parliament.uk": {
-    "_name": "UK Parliament",
-    "petition": [
-      {
-        "title": "Petitions",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/petitions"
-        ],
-        "target": "/parliament.uk(_,url)=>{const urlObj=new URL(url);const state=urlObj.searchParams.get(\"state\");return`/parliament.uk/petitions${state?`/${state}`:\"\"}`}"
-      },
-      {
-        "title": "All petitions",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/petitions"
-        ],
-        "target": "/parliament.uk/petitions/all"
-      },
-      {
-        "title": "Open petitions",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/petitions"
-        ],
-        "target": "/parliament.uk/petitions/open"
-      },
-      {
-        "title": "Recent petitions",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/petitions"
-        ],
-        "target": "/parliament.uk/petitions/recent"
-      },
-      {
-        "title": "Closed petitions",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/petitions"
-        ],
-        "target": "/parliament.uk/petitions/closed"
-      },
-      {
-        "title": "Rejected petitions",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/petitions"
-        ],
-        "target": "/parliament.uk/petitions/rejected"
-      },
-      {
-        "title": "Awaiting government response",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/petitions"
-        ],
-        "target": "/parliament.uk/petitions/awaiting_response"
-      },
-      {
-        "title": "Government responses",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/petitions"
-        ],
-        "target": "/parliament.uk/petitions/with_response"
-      },
-      {
-        "title": "Awaiting a debate in Parliament",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/petitions"
-        ],
-        "target": "/parliament.uk/petitions/awaiting_debate"
-      },
-      {
-        "title": "Debated in Parliament",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/petitions"
-        ],
-        "target": "/parliament.uk/petitions/debated"
-      },
-      {
-        "title": "Not debated in Parliament",
-        "docs": "https://docs.rsshub.app/routes/government",
-        "source": [
-          "/petitions"
-        ],
-        "target": "/parliament.uk/petitions/not_debated"
-      }
-    ]
-  },
   "patreon.com": {
     "_name": "Patreon",
     ".": [
@@ -23105,7 +22999,7 @@
       }
     ]
   },
-  "piokok.com": {
+  "picnob.com": {
     "_name": "Instagram",
     ".": [
       {
@@ -23185,20 +23079,6 @@
           "/"
         ],
         "target": "/pingwest/user/:uid/:type"
-      }
-    ]
-  },
-  "pinterest.com": {
-    "_name": "Pinterest",
-    "www": [
-      {
-        "title": "User",
-        "docs": "https://docs.rsshub.app/routes/picture",
-        "source": [
-          "/:id/:type",
-          "/:id"
-        ],
-        "target": "/pinterest/user/:id/:type?"
       }
     ]
   },
