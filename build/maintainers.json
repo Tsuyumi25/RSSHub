@@ -81,6 +81,9 @@
   "/0x80/blog": [
     "xnum"
   ],
+  "/0xxx/:filter?": [
+    "nczitzk"
+  ],
   "/10000link/info/:category?/:id?": [
     "nczitzk"
   ],
@@ -538,7 +541,8 @@
     "TonyRL"
   ],
   "/anthropic/news": [
-    "etShaw-zh"
+    "etShaw-zh",
+    "goestav"
   ],
   "/anthropic/research": [
     "ttttmr"
@@ -3769,6 +3773,12 @@
   "/hitsz/article/:category?": [
     "xandery-geek"
   ],
+  "/hitsz/due/tzgg": [
+    "guohuiyuan"
+  ],
+  "/hitsz/due/general/:type?": [
+    "guohuiyuan"
+  ],
   "/hitwh/today": [
     "raptazure"
   ],
@@ -5927,6 +5937,18 @@
     "Lava-Swimmer",
     "noname1776",
     "camera-2018"
+  ],
+  "/nycu/aa/:id?": [
+    "simbafs"
+  ],
+  "/nycu/announcement/:type": [
+    "simbafs"
+  ],
+  "/nycu/cs/:category?": [
+    "simbafs"
+  ],
+  "/nycu/osa/:id?": [
+    "simbafs"
   ],
   "/nymity/censorbib": [
     "xtexChooser"
@@ -8898,6 +8920,12 @@
   ],
   "/xys/new": [
     "wenzhenl"
+  ],
+  "/xyu/library": [
+    "JinMokai"
+  ],
+  "/xyu/index/tzgg": [
+    "JinMokai"
   ],
   "/xyzrank/:category?": [],
   "/yahoo/news/:region/:category?": [
